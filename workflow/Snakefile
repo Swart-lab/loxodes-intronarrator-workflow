@@ -4,14 +4,24 @@
 
 rule all:
     input:
-        expand("{sample}.out", sample=config['samplenames'])
+        '/ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2-comb.exp146_q28_nochlamy.falcon-comb_LmagMIC.sort.bam'
+        # expand("{sample}.out", sample=config['samplenames'])
 
-rule dosomething:
-    input:
-        lambda wildcards: config['rawdata'][wildcards.sample]
-    output:
-        "{sample}.out"
-    # conda: "example.yml"
-    threads: 1
+rule merge_bam:
+    input: 
+        reads=config['mapping'],
+        asm=config['asm_full'],
+        fofn=config['fofn']
+    output: 
+        tmp=temp('/tmp/kbseah/falcon-comb_LmagMIC.hisat2.merge.bam'),
+        bam='/ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2-comb.exp146_q28_nochlamy.falcon-comb_LmagMIC.sort.bam'
+    threads: 8
+    params:
+        tmp_prefix='/tmp/kbseah/falcon-comb_LmagMIC.hisat2.sort_temp'
+    conda: 'envs/intronarrator.yml'
     shell:
-        "cat {input} > {output}"
+        r"""
+        samtools merge --reference {input.asm} --threads {threads} -f -u -b {input.fofn} {output.tmp};
+        samtools sort --reference {input.asm} --threads {threads} -T {params.tmp_prefix} {output.tmp} > {output.bam};
+        samtools index -@{threads} {output.bam}
+        """

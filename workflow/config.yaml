@@ -1,8 +1,12 @@
 # EXAMPLE: Paths to raw data
-rawdata:
-  sample_A: example/data_A
-  sample_B: example/data_B
+mapping:
+  - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_A_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
+  - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_B_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
+  - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_C_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
+  - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_D_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
+  - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_E_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
+  - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_F_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
 
-samplenames:
-  - sample_A
-  - sample_B
+asm_full: /ebio/abt2_projects/ag-swart-loxodes/assembly/falcon-comb_LmagMIC/scaffolds.fasta
+
+fofn: falcon-comb_LmagMIC.hisat2.fofn
