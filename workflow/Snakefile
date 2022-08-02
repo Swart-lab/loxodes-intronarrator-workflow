@@ -1,11 +1,44 @@
-# If rules are split across multiple snakefiles, list them here
-# include: "rules-A"
-# include: "rules-B"
-
 rule all:
     input:
-        '/ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2-comb.exp146_q28_nochlamy.falcon-comb_LmagMIC.sort.bam'
-        # expand("{sample}.out", sample=config['samplenames'])
+        'falcon-comb_LmagMIC.intron_counts.txt'
+
+rule count_reads:
+    """Count both spliced reads and total reads properly"""
+    input:
+        asm=config['asm_full'],
+        bam='/ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2-comb.exp146_q28_nochlamy.falcon-comb_LmagMIC.sort.bam',
+        juncs_sorted='falcon-comb_LmagMIC.juncs.sorted'
+    output:
+        intron_counts='falcon-comb_LmagMIC.intron_counts.txt'
+    conda: 'envs/intronarrator.yml'
+    threads: 16
+    params:
+        tmpdir='/tmp/kbseah/tmp_counts'
+    shell:
+        r"""
+        mkdir -p {params.tmpdir};
+        Intronarrator/pipeline/pysam_count_reads.py --processes {threads} --bam {input.bam} --intron_juncs {input.juncs_sorted} --genome {input.asm} --outfile  {output.intron_counts} --tmpdir {params.tmpdir};
+        rm -r {params.tmpdir}
+        """
+
+rule find_introns:
+    input:
+        asm=config['asm_full'],
+        bam='/ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2-comb.exp146_q28_nochlamy.falcon-comb_LmagMIC.sort.bam'
+    output:
+        juncs=temp('falcon-comb_LmagMIC.juncs'),
+        juncs_sorted='falcon-comb_LmagMIC.juncs.sorted'
+    conda: 'envs/intronarrator.yml'
+    threads: 16
+    params:
+        tmpdir='/tmp/kbseah/tmp_juncs'
+    shell:
+        r"""
+        mkdir -p {params.tmpdir};
+        Intronarrator/pipeline/pysam_extract_introns_parallel.py --processes {threads} --bam {input.bam} --genome {input.asm} --outfile {output.juncs} --tmpdir {params.tmpdir};
+        sort -k 1,1 -k 2,2n {output.juncs} > {output.juncs_sorted};
+        rm -r {params.tmpdir}
+        """
 
 rule merge_bam:
     input: 
