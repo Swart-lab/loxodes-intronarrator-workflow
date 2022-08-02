@@ -1,6 +1,60 @@
 rule all:
     input:
-        'falcon-comb_LmagMIC.intron_counts.txt'
+        'falcon-comb_LmagMIC.0.2.intron_masked.fa',
+        expand('all.realtrons.{min_intron_ratio}.gff', min_intron_ratio=[0.01,0.2])
+
+rule mask_introns:
+    """Mask and remove introns to create an intron- genome"""
+    input:
+        asm=config['asm_full'],
+        realtrons_noalt='all.realtrons.{min_intron_ratio}.noalt.gff',
+    output:
+        intron_masked='falcon-comb_LmagMIC.{min_intron_ratio}.intron_masked.fa',
+        minus_introns='falcon-comb_LmagMIC.{min_intron_ratio}.minus_introns.fa'
+    wildcard_constraints:
+        min_intron_ratio="[\d\.]+"
+    conda: 'envs/intronarrator.yml'
+    shell:
+        r"""
+        Intronarrator/pipeline/mask_introns.py {input.asm} {input.realtrons_noalt} >  {output.intron_masked};
+        Intronarrator/pipeline/remove_introns.py {output.intron_masked} > {output.minus_introns};
+        """
+
+rule no_alt_realtrons:
+    """Select only the most frequently spliced introns that share a boundary"""
+    input:
+        sense='all.realtrons.{min_intron_ratio}.gff',
+        antisense='all.realtrons.{min_intron_ratio}.antisense.gff'
+    output:
+        sense='all.realtrons.{min_intron_ratio}.noalt.gff',
+        antisense='all.realtrons.{min_intron_ratio}.noalt.antisense.gff',
+    wildcard_constraints:
+        min_intron_ratio="[\d\.]+"
+    conda: 'envs/intronarrator.yml'
+    shell:
+        r"""
+        Intronarrator/pipeline/realtrons_filter_alt.py {input.sense} > {output.sense};
+        Intronarrator/pipeline/realtrons_filter_alt.py {input.antisense} > {output.antisense};
+        """
+
+rule realtrons:
+    """Define boundaries of empirical introns, with different cutoffs"""
+    input:
+        intron_counts='falcon-comb_LmagMIC.intron_counts.txt'
+    output:
+        sense='all.realtrons.{min_intron_ratio}.gff',
+        antisense='all.realtrons.{min_intron_ratio}.antisense.gff'
+    wildcard_constraints:
+        min_intron_ratio="[\d\.]+"
+    conda: 'envs/intronarrator.yml'
+    params:
+        min_introns=10,
+        max_intron_len=40
+    shell:
+        r"""
+        Intronarrator/pipeline/realtrons.py {input.intron_counts} {wildcards.min_intron_ratio} {params.min_introns} {params.max_intron_len} > {output.sense};
+        Intronarrator/pipeline/antisense_realtrons.py {input.intron_counts} {wildcards.min_intron_ratio} {params.min_introns} {params.max_intron_len} > {output.antisense};
+        """
 
 rule count_reads:
     """Count both spliced reads and total reads properly"""
