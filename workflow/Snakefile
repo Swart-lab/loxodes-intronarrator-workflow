@@ -1,7 +1,28 @@
 rule all:
     input:
-        'falcon-comb_LmagMIC.0.2.intron_masked.fa',
+        'falcon-comb_LmagMIC.0.2.minus_introns.ncRNA_hard_masked.fa',
         expand('all.realtrons.{min_intron_ratio}.gff', min_intron_ratio=[0.01,0.2])
+
+rule infernal:
+    """ncRNA search with Infernal, followed by filtering to remove undesirable domains and weak matches"""
+    input:
+        rfam_db=config['rfam_db'],
+        minus_introns='falcon-comb_LmagMIC.{min_intron_ratio}.minus_introns.fa'
+    output:
+        cmsearch_tblout='falcon-comb_LmagMIC.{min_intron_ratio}.minus_introns.cmsearch',
+        cmsearch_alnout='falcon-comb_LmagMIC.{min_intron_ratio}.minus_introns.cmsearch.aln',
+        cmsearch_filter='falcon-comb_LmagMIC.{min_intron_ratio}.minus_introns.filtered.cmsearch',
+        masked='falcon-comb_LmagMIC.{min_intron_ratio}.minus_introns.ncRNA_hard_masked.fa'
+    threads: 32
+    wildcard_constraints:
+        min_intron_ratio="[\d\.]+"
+    conda: 'envs/intronarrator.yml'
+    shell:
+        r"""
+        cmsearch --cpu {threads} --tblout {output.cmsearch_tblout} {input.rfam_db} {input.minus_introns} > {output.cmsearch_alnout};
+        Intronarrator/ncRNA_searches/infernal_filter.py {output.cmsearch_tblout} > {output.cmsearch_filter};
+        Intronarrator/ncRNA_searches/infernal_hard_masker.py {output.cmsearch_filter} {input.minus_introns} > {output.masked};
+        """
 
 rule mask_introns:
     """Mask and remove introns to create an intron- genome"""

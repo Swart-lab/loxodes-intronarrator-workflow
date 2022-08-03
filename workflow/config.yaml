@@ -10,3 +10,5 @@ mapping:
 asm_full: /ebio/abt2_projects/ag-swart-loxodes/assembly/falcon-comb_LmagMIC/scaffolds.fasta
 
 fofn: falcon-comb_LmagMIC.hisat2.fofn
+
+rfam_db: Intronarrator/db/rfam_minimal.cm
