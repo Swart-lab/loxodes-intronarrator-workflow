@@ -1,4 +1,4 @@
-# EXAMPLE: Paths to raw data
+# RNA-seq libraries mapped to reference genome assembly with Hisat2
 mapping:
   - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_A_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
   - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_B_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
@@ -7,8 +7,11 @@ mapping:
   - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_E_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
   - /ebio/abt2_projects/ag-swart-loxodes/annotation/falcon-comb_LmagMIC/mapping/hisat2.4305_F_q28_nochlamy.falcon-comb_LmagMIC.sort.bam
 
+# Reference genomic assembly assembled by Falcon
 asm_full: /ebio/abt2_projects/ag-swart-loxodes/assembly/falcon-comb_LmagMIC/scaffolds.fasta
 
+# File of filenames listing RNA-seq mapping file paths and short names
 fofn: falcon-comb_LmagMIC.hisat2.fofn
 
+# Path to minimal Rfam database bundled with Intronarrator
 rfam_db: Intronarrator/db/rfam_minimal.cm
